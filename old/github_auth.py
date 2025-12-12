@@ -4,8 +4,8 @@ import httpx
 from dotenv import load_dotenv
 
 load_dotenv()
-GITHUB_APP_ID = os.getenv("GITHUB_APP_ID")
-GITHUB_PRIVATE_KEY_PATH = os.getenv("GITHUB_PRIVATE_KEY_PATH")  # path to downloaded .pem
+GITHUB_APP_ID = os.getenv("APP_ID")
+GITHUB_PRIVATE_KEY_PATH = os.getenv("PRIVATE_KEY_PATH")  # path to downloaded .pem
 
 def make_jwt():
     now = int(time.time())
