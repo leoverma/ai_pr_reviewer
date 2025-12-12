@@ -1,29 +1,11 @@
-import re
-from typing import List, Dict
+import httpx
 
-FILE_HDR_RE = re.compile(r"^diff --git a/(.+) b/(.+)$")
-
-def parse_diff(diff_text: str) -> List[Dict]:
-    lines = diff_text.splitlines()
-    files = []
-    current = None
-    for line in lines:
-        m = FILE_HDR_RE.match(line)
-        if m:
-            if current:
-                files.append(current)
-            current = {"old": m.group(1), "new": m.group(2), "raw": []}
-            continue
-        if current is None:
-            continue
-        current["raw"].append(line)
-    if current:
-        files.append(current)
-
-    swift_files = []
-    for f in files:
-        filename = f["new"]
-        if filename.endswith(".swift"):
-            diff_for_file = "\n".join(f["raw"])
-            swift_files.append({"file_path": filename, "diff": diff_for_file})
-    return swift_files
+async def fetch_and_extract_swift_diff(diff_url):
+    async with httpx.AsyncClient() as client:
+        r = await client.get(diff_url)
+        diff = r.text
+    swift_lines = []
+    for line in diff.splitlines():
+        if line.endswith(".swift") or line.startswith("+") or line.startswith("-"):
+            swift_lines.append(line)
+    return "\n".join(swift_lines)
